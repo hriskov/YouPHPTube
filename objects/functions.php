@@ -219,9 +219,7 @@ function cleanString($text) {
  * @return boolean
  */
 function isCommandLineInterface() {
-    return false;
-    return (php_sapi_name() === 'cli');
-    /*return (empty($_GET['ignoreCommandLineInterface']) && php_sapi_name() === 'cli');*/
+    return (empty($_GET['ignoreCommandLineInterface']) && php_sapi_name() === 'cli');
 }
 
 /**
