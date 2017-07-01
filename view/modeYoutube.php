@@ -5,13 +5,10 @@ if (!file_exists('../videos/configuration.php')) {
     }
     header("Location: install/index.php");
 }
-
 require_once '../videos/configuration.php';
-
 require_once $global['systemRootPath'] . 'objects/user.php';
 require_once $global['systemRootPath'] . 'objects/subscribe.php';
 require_once $global['systemRootPath'] . 'objects/functions.php';
-
 if (!empty($_GET['type'])) {
     if ($_GET['type'] == 'audio') {
         $_SESSION['type'] = 'audio';
@@ -22,7 +19,6 @@ if (!empty($_GET['type'])) {
         unset($_SESSION['type']);
     }
 }
-
 require_once $global['systemRootPath'] . 'objects/video.php';
 require_once $global['systemRootPath'] . 'objects/video_ad.php';
 require_once $global['systemRootPath'] . 'objects/video_statistic.php';
@@ -70,7 +66,6 @@ if (!empty($video)) {
     // dont need because have one embeded video on this page
     //$resp = $obj->addView();
 }
-
 if (empty($_GET['page'])) {
     $_GET['page'] = 1;
 } else {
@@ -99,7 +94,16 @@ if (!empty($video)) {
         $img = "{$global['webSiteRootURL']}view/img/audio_wave.jpg";
     }
 }
-
+$autoPlayVideo = Video::getRandom($video['id']);
+if (!empty($autoPlayVideo)) {
+    $name2 = empty($autoPlayVideo['name']) ? substr($autoPlayVideo['user'], 0, 5) . "..." : $autoPlayVideo['name'];
+    $autoPlayVideo['creator'] = '<div class="pull-left"><img src="' . User::getPhoto($autoPlayVideo['users_id']) . '" alt="" class="img img-responsive img-circle" style="max-width: 40px;"/></div><div class="commentDetails" style="margin-left:45px;"><div class="commenterName"><strong>' . $name2 . '</strong> <small>' . humanTiming(strtotime($autoPlayVideo['videoCreation'])) . '</small></div></div>';
+    $autoPlayVideo['tags'] = Video::getTags($autoPlayVideo['id']);
+}
+$catLink = "";
+if (!empty($_GET['catName'])) {
+    $catLink = "cat/{$_GET['catName']}/";
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?php echo $_SESSION['language']; ?>">
@@ -119,7 +123,7 @@ if (!empty($video)) {
         <meta property="og:type"               content="video" />
         <meta property="og:title"              content="<?php echo $video['title']; ?> - <?php echo $config->getWebSiteTitle(); ?>" />
         <meta property="og:description"        content="<?php echo $video['title']; ?>" />
-        <meta property="og:image"              content="<?php echo $img; ?>" />
+        <meta property="og:image"              content="<?php echo $poster; ?>" />
     </head>
 
     <body>
@@ -317,7 +321,6 @@ if (!empty($video)) {
                                         </a>
                                         <script>
                                             $(document).ready(function () {
-
         <?php
         if (User::isLogged()) {
             ?>
@@ -343,14 +346,12 @@ if (!empty($video)) {
         } else {
             ?>
                                                     $("#dislikeBtn, #likeBtn").click(function () {
-
                                                         $(this).tooltip("show");
                                                         return false;
                                                     });
             <?php
         }
         ?>
-
                                             });
                                         </script>
                                     </div>
@@ -487,7 +488,6 @@ if (!empty($video)) {
                                                     </form>
                                                     <script>
                                                         $(document).ready(function () {
-
                                                             $('#btnReloadCapcha').click(function () {
                                                                 $('#captcha').attr('src', '<?php echo $global['webSiteRootURL']; ?>captcha?' + Math.random());
                                                                 $('#captchaText').val('');
@@ -788,7 +788,6 @@ if (!empty($video)) {
                             </ul>
                             <script>
                                 $(document).ready(function () {
-
                                     $("input.saveCookie").each(function () {
                                         var mycookie = Cookies.get($(this).attr('name'));
                                         console.log($(this).attr('name'));
@@ -816,7 +815,6 @@ if (!empty($video)) {
                                         $('.autoplay').slideDown();
                                     }, 1000);
                                     // Total Itens <?php echo $total; ?>
-
                                     $('.pages').bootpag({
                                         total: <?php echo $totalPages; ?>,
                                         page: <?php echo $_GET['page']; ?>,
@@ -831,7 +829,46 @@ if (!empty($video)) {
                         <div class="col-xs-12 col-sm-1 col-md-1 col-lg-1"></div>
                     </div>
                     <?php
-                
+                } else {
+                    ?>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-12 col-lg-1"></div>
+                        <div class="col-xs-12 col-sm-12 col-lg-10">
+                            <?php
+                            foreach ($videos as $value) {
+                                $img_portrait = ($value['rotation'] === "90" || $value['rotation'] === "270") ? "img-portrait" : "";
+                                ?>
+                                <div class="col-lg-3 col-sm-12 col-xs-12">
+                                    <a href="<?php echo $global['webSiteRootURL'], $catLink; ?>video/<?php echo $value['clean_title']; ?>" title="<?php echo $value['title']; ?>">
+                                        <img src="<?php echo $global['webSiteRootURL']; ?>videos/<?php echo $value['filename']; ?>.jpg" alt="<?php echo $value['title']; ?>" class="img-responsive <?php echo $img_portrait; ?>  rotate<?php echo $value['rotation']; ?>" height="130px" />
+                                        <h2><?php echo $value['title']; ?></h2>
+                                        <span class="glyphicon glyphicon-play-circle"></span>
+                                        <span class="duration"><?php echo Video::getCleanDuration($value['duration']); ?></span>
+                                    </a>
+                                </div>
+                                <?php
+                            }
+                            ?> 
+                            <ul class="pages">
+                            </ul>
+                            <script>
+                                $(document).ready(function () {
+                                    // Total Itens <?php echo $total; ?>
+                                    $('.pages').bootpag({
+                                        total: <?php echo $totalPages; ?>,
+                                        page: <?php echo $_GET['page']; ?>,
+                                        maxVisible: 10
+                                    }).on('page', function (event, num) {
+                                        window.location.replace("<?php echo $global['webSiteRootURL']; ?>page/" + num);
+                                    });
+                                });
+                            </script>
+                        </div>
+
+                        <div class="col-xs-12 col-sm-12 col-lg-1"></div>
+                    </div>
+                    <?php
+                }
             } else {
                 ?>
                 <div class="alert alert-warning">
