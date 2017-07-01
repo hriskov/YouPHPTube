@@ -22,13 +22,10 @@ if (!empty($_GET['type'])) {
 require_once $global['systemRootPath'] . 'objects/video.php';
 require_once $global['systemRootPath'] . 'objects/video_ad.php';
 require_once $global['systemRootPath'] . 'objects/video_statistic.php';
-
-
 $catLink = "";
 if (!empty($_GET['catName'])) {
     $catLink = "cat/{$_GET['catName']}/";
 }
-
 $video = Video::getVideo("", "viewableNotAd");
 if(!empty($_GET['playlist_id'])){
     $playlist_id = $_GET['playlist_id'];
@@ -53,14 +50,12 @@ if(!empty($_GET['playlist_id'])){
         $autoPlayVideo['url'] = $global['webSiteRootURL'].$catLink."video/".$autoPlayVideo['clean_title'];
     }
 }
-
 if (!empty($video)) {
     $ad = Video_ad::getAdFromCategory($video['categories_id']);
     VideoStatistic::save($video['id']);
     $name = empty($video['name']) ? substr($video['user'], 0, 5) . "..." : $video['name'];
     $name = "<a href='{$global['webSiteRootURL']}channel/{$video['users_id']}/' class='btn btn-xs btn-default'>{$name}</a>";
     $subscribe = Subscribe::getButton($video['users_id']);
-
     $video['creator'] = '<div class="pull-left"><img src="' . User::getPhoto($video['users_id']) . '" alt="" class="img img-responsive img-circle" style="max-width: 40px;"/></div><div class="commentDetails" style="margin-left:45px;"><div class="commenterName text-muted"><strong>' . $name . '</strong><br>' . $subscribe . '<br><small>' . humanTiming(strtotime($video['videoCreation'])) . '</small></div></div>';
     $obj = new Video("", "", $video['id']);
     // dont need because have one embeded video on this page
@@ -86,23 +81,12 @@ if ($video['type'] !== "audio") {
 } else {
     $poster = "{$global['webSiteRootURL']}view/img/audio_wave.jpg";
 }
-
 if (!empty($video)) {
     if ($video['type'] !== "audio") {
         $img = "{$global['webSiteRootURL']}videos/{$value['filename']}.jpg";
     } else {
         $img = "{$global['webSiteRootURL']}view/img/audio_wave.jpg";
     }
-}
-$autoPlayVideo = Video::getRandom($video['id']);
-if (!empty($autoPlayVideo)) {
-    $name2 = empty($autoPlayVideo['name']) ? substr($autoPlayVideo['user'], 0, 5) . "..." : $autoPlayVideo['name'];
-    $autoPlayVideo['creator'] = '<div class="pull-left"><img src="' . User::getPhoto($autoPlayVideo['users_id']) . '" alt="" class="img img-responsive img-circle" style="max-width: 40px;"/></div><div class="commentDetails" style="margin-left:45px;"><div class="commenterName"><strong>' . $name2 . '</strong> <small>' . humanTiming(strtotime($autoPlayVideo['videoCreation'])) . '</small></div></div>';
-    $autoPlayVideo['tags'] = Video::getTags($autoPlayVideo['id']);
-}
-$catLink = "";
-if (!empty($_GET['catName'])) {
-    $catLink = "cat/{$_GET['catName']}/";
 }
 ?>
 <!DOCTYPE html>
@@ -240,14 +224,12 @@ if (!empty($_GET['catName'])) {
                                                             if (response[i].status == "public") {
                                                                 icon = "globe"
                                                             }
-
                                                             var checked = "";
                                                             for (var x in response[i].videos) {
                                                                 if (response[i].videos[x].id ==<?php echo $video['id']; ?>) {
                                                                     checked = "checked";
                                                                 }
                                                             }
-
                                                             $("#searchlist").append('<a class="list-group-item"><i class="fa fa-' + icon + '"></i> <span>' + response[i].name + '</span><div class="material-switch pull-right"><input id="someSwitchOptionDefault' + response[i].id + '" name="someSwitchOption' + response[i].id + '" class="playListsIds" type="checkbox" value="' + response[i].id + '" ' + checked + '/><label for="someSwitchOptionDefault' + response[i].id + '" class="label-success"></label></div></a>');
                                                         }
                                                         $('#searchlist').btsListFilter('#searchinput', {itemChild: 'span'});
@@ -297,7 +279,6 @@ if (!empty($_GET['catName'])) {
                                                     });
                                                     return false;
                                                 });
-
                                             });
                                         </script>
                                         <a href="#" class="btn btn-default no-outline" id="shareBtn">
@@ -829,46 +810,7 @@ if (!empty($_GET['catName'])) {
                         <div class="col-xs-12 col-sm-1 col-md-1 col-lg-1"></div>
                     </div>
                     <?php
-                } else {
-                    ?>
-                    <div class="row">
-                        <div class="col-xs-12 col-sm-12 col-lg-1"></div>
-                        <div class="col-xs-12 col-sm-12 col-lg-10">
-                            <?php
-                            foreach ($videos as $value) {
-                                $img_portrait = ($value['rotation'] === "90" || $value['rotation'] === "270") ? "img-portrait" : "";
-                                ?>
-                                <div class="col-lg-3 col-sm-12 col-xs-12">
-                                    <a href="<?php echo $global['webSiteRootURL'], $catLink; ?>video/<?php echo $value['clean_title']; ?>" title="<?php echo $value['title']; ?>">
-                                        <img src="<?php echo $global['webSiteRootURL']; ?>videos/<?php echo $value['filename']; ?>.jpg" alt="<?php echo $value['title']; ?>" class="img-responsive <?php echo $img_portrait; ?>  rotate<?php echo $value['rotation']; ?>" height="130px" />
-                                        <h2><?php echo $value['title']; ?></h2>
-                                        <span class="glyphicon glyphicon-play-circle"></span>
-                                        <span class="duration"><?php echo Video::getCleanDuration($value['duration']); ?></span>
-                                    </a>
-                                </div>
-                                <?php
-                            }
-                            ?> 
-                            <ul class="pages">
-                            </ul>
-                            <script>
-                                $(document).ready(function () {
-                                    // Total Itens <?php echo $total; ?>
-                                    $('.pages').bootpag({
-                                        total: <?php echo $totalPages; ?>,
-                                        page: <?php echo $_GET['page']; ?>,
-                                        maxVisible: 10
-                                    }).on('page', function (event, num) {
-                                        window.location.replace("<?php echo $global['webSiteRootURL']; ?>page/" + num);
-                                    });
-                                });
-                            </script>
-                        </div>
 
-                        <div class="col-xs-12 col-sm-12 col-lg-1"></div>
-                    </div>
-                    <?php
-                }
             } else {
                 ?>
                 <div class="alert alert-warning">
