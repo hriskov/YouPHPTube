@@ -260,7 +260,7 @@ class Video {
                 . "LEFT JOIN categories c ON categories_id = c.id "
                 . "LEFT JOIN users u ON v.users_id = u.id "
                 . " WHERE 1=1 ";
-
+        $sql .= static::getVideoQueryFileter();
         if (!$ignoreGroup) {
             $sql .= self::getUserGroupsCanSeeSQL();
         }
@@ -321,7 +321,16 @@ class Video {
         }
     }
 
-    static function getAllVideos($status = "viewable", $showOnlyLoggedUserVideos = false, $ignoreGroup = false) {
+    /**
+     * 
+     * @global type $global
+     * @param type $status
+     * @param type $showOnlyLoggedUserVideos you may pass an user ID to filter results
+     * @param type $ignoreGroup
+     * @param type $videosArrayId an array with videos to return (for filter only)
+     * @return boolean
+     */
+    static function getAllVideos($status = "viewable", $showOnlyLoggedUserVideos = false, $ignoreGroup = false, $videosArrayId = array()) {
         global $global;
         $sql = "SELECT u.*, v.*, c.iconClass, c.name as category, c.clean_name as clean_category, v.created as videoCreation, "
                 . " (SELECT count(id) FROM video_ads as va where va.videos_id = v.id) as videoAdsCount "
@@ -330,6 +339,11 @@ class Video {
                 . " LEFT JOIN users u ON v.users_id = u.id "
                 . " WHERE 1=1 ";
 
+        $sql .= static::getVideoQueryFileter();
+        if(!empty($videosArrayId) && is_array($videosArrayId)){
+            $sql .= " AND v.id IN ( ". implode(", ", $videosArrayId).") ";
+        }
+        
         if (!$ignoreGroup) {
             $sql .= self::getUserGroupsCanSeeSQL();
         }
@@ -347,8 +361,10 @@ class Video {
         } else if (!empty($status)) {
             $sql .= " AND v.status = '{$status}'";
         }
-        if ($showOnlyLoggedUserVideos && !User::isAdmin()) {
+        if ($showOnlyLoggedUserVideos===true && !User::isAdmin()) {
             $sql .= " AND v.users_id = '" . User::getId() . "'";
+        }else if(!empty($showOnlyLoggedUserVideos)){
+            $sql .= " AND v.users_id = {$showOnlyLoggedUserVideos}";
         }
 
         if (!empty($_GET['catName'])) {
@@ -361,7 +377,7 @@ class Video {
 
         $sql .= BootGrid::getSqlFromPost(array('title', 'description'), "v.");
 
-
+        //echo $sql;
         $res = $global['mysqli']->query($sql);
         $videos = array();
         if ($res) {
@@ -387,6 +403,7 @@ class Video {
                 . "LEFT JOIN categories c ON categories_id = c.id "
                 . " WHERE 1=1  ";
 
+        $sql .= static::getVideoQueryFileter();
         if (!$ignoreGroup) {
             $sql .= self::getUserGroupsCanSeeSQL();
         }
@@ -400,10 +417,11 @@ class Video {
         } else if (!empty($status)) {
             $sql .= " AND status = '{$status}'";
         }
-        if ($showOnlyLoggedUserVideos) {
+        if ($showOnlyLoggedUserVideos===true && !User::isAdmin()) {
             $sql .= " AND v.users_id = '" . User::getId() . "'";
+        }else if(is_int($showOnlyLoggedUserVideos)){
+            $sql .= " AND v.users_id = {$showOnlyLoggedUserVideos}";
         }
-
         if (!empty($_GET['catName'])) {
             $sql .= " AND c.clean_name = '{$_GET['catName']}'";
         }
@@ -898,6 +916,19 @@ class Video {
     static function getRandom($excludeVideoId=false){
         return static::getVideo("", "viewableNotAd",false, $excludeVideoId);
         
+    }
+    
+    static function getVideoQueryFileter(){
+        global $global;
+        $sql = "";
+        if(!empty($_GET['playlist_id'])){
+            require_once $global['systemRootPath'] . 'objects/playlist.php';
+            $ids = PlayList::getVideosIdFromPlaylist($_GET['playlist_id']);
+            if(!empty($ids)){
+                $sql .= " AND v.id IN (". implode(",", $ids).") "; 
+            }
+        }
+        return $sql;
     }
 
 }
