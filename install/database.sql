@@ -5,6 +5,16 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
 -- -----------------------------------------------------
+-- Schema youPHPTube
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema youPHPTube
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `youPHPTube` DEFAULT CHARACTER SET utf8 ;
+USE `youPHPTube` ;
+
+-- -----------------------------------------------------
 -- Table `users`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `users` (
@@ -62,6 +72,7 @@ CREATE TABLE IF NOT EXISTS `videos` (
   `order` INT UNSIGNED NOT NULL DEFAULT 1,
   `rotation` SMALLINT NULL DEFAULT 0,
   `zoom` FLOAT NULL DEFAULT 1,
+  `youtubeId` VARCHAR(45) NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_videos_users_idx` (`users_id` ASC),
   INDEX `fk_videos_categories1_idx` (`categories_id` ASC),
@@ -155,6 +166,13 @@ CREATE TABLE IF NOT EXISTS `configurations` (
   `theme` VARCHAR(45) NULL DEFAULT 'default',
   `doNotShowVideoAndAudioLinks` TINYINT(1) NULL,
   `doNotShowCategories` TINYINT(1) NULL,
+  `smtp` TINYINT(1) NULL,
+  `smtpAuth` TINYINT(1) NULL,
+  `smtpSecure` VARCHAR(45) NULL COMMENT '\'ssl\'; // secure transfer enabled REQUIRED for Gmail',
+  `smtpHost` VARCHAR(100) NULL COMMENT '\"smtp.gmail.com\"',
+  `smtpUsername` VARCHAR(45) NULL COMMENT '\"email@gmail.com\"',
+  `smtpPassword` VARCHAR(45) NULL,
+  `smtpPort` INT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_configurations_users1_idx` (`users_id` ASC),
   CONSTRAINT `fk_configurations_users1`

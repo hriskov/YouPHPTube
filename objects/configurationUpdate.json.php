@@ -15,7 +15,6 @@ require_once $global['systemRootPath'] . 'objects/functions.php';
 $config = new Configuration();
 $config->setContactEmail($_POST['contactEmail']);
 $config->setLanguage($_POST['language']);
-$config->setVideo_resolution($_POST['video_resolution']);
 $config->setWebSiteTitle($_POST['webSiteTitle']);
 $config->setAuthCanComment($_POST['authCanComment']);
 $config->setAuthCanUploadVideos($_POST['authCanUploadVideos']);
@@ -26,6 +25,7 @@ $config->setAuthGoogle_enabled($_POST['authGoogle_enabled']);
 $config->setAuthGoogle_id($_POST['authGoogle_id']);
 $config->setAuthGoogle_key($_POST['authGoogle_key']);
 if (empty($global['disableAdvancedConfigurations'])) {
+    $config->setVideo_resolution($_POST['video_resolution']);
     $config->setFfprobeDuration($_POST['ffprobeDuration']);
     $config->setFfmpegImage($_POST['ffmpegImage']);
     $config->setFfmpegMp4($_POST['ffmpegMp4']);
@@ -42,6 +42,13 @@ if (empty($global['disableAdvancedConfigurations'])) {
     $config->setEncode_webm($_POST['encode_webm']);
     $config->setEncode_mp3spectrum($_POST['encode_mp3spectrum']);
     $config->setFfmpegSpectrum($_POST['ffmpegSpectrum']);
+    $config->setSmtp($_POST['smtp']);
+    $config->setSmtpAuth($_POST['smtpAuth']);
+    $config->setSmtpSecure($_POST['smtpSecure']);
+    $config->setSmtpHost($_POST['smtpHost']);
+    $config->setSmtpUsername($_POST['smtpUsername']);
+    $config->setSmtpPassword($_POST['smtpPassword']);
+    $config->setSmtpPort($_POST['smtpPort']);
 }
 
 $config->setHead($_POST['head']);

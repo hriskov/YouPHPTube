@@ -16,7 +16,7 @@ $user_id = $_GET['user_id'];
 
 
 $isMyChannel = false;
-if (User::isLogged() && $user_id = User::getId()) {
+if (User::isLogged() && $user_id == User::getId()) {
     $isMyChannel = true;
 }
 
@@ -35,6 +35,7 @@ $playlists = PlayList::getAllFromUser($user_id, $publicOnly);
         <?php
         include $global['systemRootPath'] . 'view/include/head.php';
         ?>
+        <!-- users_id = <?php echo $user_id; ?> -->
     </head>
 
     <body>
