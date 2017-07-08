@@ -12,6 +12,9 @@ if ($valid) {
     setSiteSendMessage($mail);
     //$mail->SMTPDebug = 1; // debugging: 1 = errors and messages, 2 = messages only
     //var_dump($mail->SMTPAuth, $mail);
+    //Set CharactorSet
+    $mail->CharSet = "UTF-8";
+    $mail->Encoding = "base64";
     //Set who the message is to be sent from
     $mail->setFrom($_POST['email'], $_POST['first_name']);
     $mail->addReplyTo($_POST['email'], $_POST['first_name']);
