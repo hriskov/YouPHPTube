@@ -14,6 +14,7 @@ if ($valid) {
     //var_dump($mail->SMTPAuth, $mail);
     //Set who the message is to be sent from
     $mail->setFrom($_POST['email'], $_POST['first_name']);
+    $mail->addReplyTo($_POST['email'], $_POST['first_name']);
     //Set who the message is to be sent to
     $mail->addAddress($config->getContactEmail());
     //Set the subject line
